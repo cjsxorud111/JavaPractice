@@ -13,7 +13,7 @@ public class TcpServer implements Runnable{
 		try {
 			// 서버소켓을 생성하여 7777번 포트와 결합(bind)시킨다.
 			serverSocket = new ServerSocket(7777);
-			System.out.println(getTime() + "서버가 준비되었습니다.");
+			System.out.println("서버가 준비되었습니다.");
 			
 			threadArr = new Thread[num];
 		} catch (IOException e) {
