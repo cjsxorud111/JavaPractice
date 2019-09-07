@@ -5,26 +5,45 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;;
 
-public class TcpServer {
-
-	public static void main(String[] args) {
-		ServerSocket serverSocket = null;
-		
+public class TcpServer implements Runnable{
+	ServerSocket serverSocket;
+	Thread[] threadArr;
+	
+	public TcpServer (int num) {
 		try {
-			// 서버소켓을 생성하여 7777번 포트와 결합시킨다.
-			serverSocket = new ServerSocket(1111);
-			System.out.println(getTime() + "서버가 비되었습니다.");
+			// 서버소켓을 생성하여 7777번 포트와 결합(bind)시킨다.
+			serverSocket = new ServerSocket(7777);
+			System.out.println(getTime() + "서버가 준비되었습니다.");
+			
+			threadArr = new Thread[num];
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+	}
+	
+	public static void main(String[] args) {
+		// 5개의 쓰레드를 생성하는 서버를 생성한다.
+		TcpServer server = new TcpServer(500);
+		server.start();
+	}
+	
+	public void start() {
+		for (int i = 0; i < threadArr.length; i++) {
+			threadArr[i] = new Thread(this);
+			threadArr[i].start();
+		}
+	}
+	
+	public void run() {
 		while(true) {
 			try {
-				System.out.println(getTime() + "연결요청을 기다립니다.");
+				System.out.println(getTime() + "가 연결요청을 기다립니다.");
+				
 				// 서버소켓은  클라이언트의 연결요청이 올 때까지 실행을 멈추고 계속 기다린다.
 				// 클라이언트의 연결요청이 오면 클라이언트 소켓과 통신할 새로운 소켓을 생성한다.
+				
 				Socket socket = serverSocket.accept();
-				System.out.println(getTime() + socket.getInetAddress() + "로부터 요청이 들어왔습니다.");
+				System.out.println(getTime() + socket.getInetAddress() + "로부터 연결요청이 들어왔습니다.");
 				
 				// 소켓의 출력스트림을 얻는다.
 				OutputStream out = socket.getOutputStream();
@@ -41,11 +60,12 @@ public class TcpServer {
 				e.printStackTrace();
 			}
 		} // while
-	} // main
+	} // run
 
 	//현재시간을 문자열로 반환하는 함수
 	static String getTime() {
+		String name = Thread.currentThread().getName();
 		SimpleDateFormat f = new SimpleDateFormat("[hh:mm:ss]");
-		return f.format(new Date());
+		return f.format(new Date()) + name;
 	}
 }// class
